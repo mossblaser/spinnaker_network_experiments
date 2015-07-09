@@ -22,6 +22,8 @@ Results
 All results files will contain the following label columns:
 
 * `netlist` the name of the network which was tested
+* `reinject_packets` True or False depending on packet reinjection being used
+  or not.
 * `placer` the name of the placement algorithm
 * `placement_duration` the name of the placement algorithm
 * `injection_rate` the number of packets-per-second-per-unit-weight for each

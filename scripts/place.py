@@ -16,6 +16,8 @@ from rig.machine import Cores
 
 from rig.place_and_route.constraints import ReserveResourceConstraint
 
+from rig.place_and_route.exceptions import InsufficientResourceError
+
 from netlist_to_json import json_to_netlist
 from machine_to_json import json_to_machine
 
@@ -34,8 +36,9 @@ def place_to_json(vertices_resources, nets, machine, algorithm="default"):
             "Placement algorithm {} does not exist\n".format(algorithm))
         sys.exit(1)
     
+    # Reserve space for the monitor and also a reinjection application
     constraints = [
-        ReserveResourceConstraint(Cores, slice(0, 1))
+        ReserveResourceConstraint(Cores, slice(0, 2))
     ]
     
     before = time.time()
@@ -69,9 +72,12 @@ if __name__=="__main__":
         with open(sys.argv[2], "r") as f:
             hostname, machine = json_to_machine(json.load(f))
         algorithm = sys.argv[3]
-        print(json.dumps(place_to_json(netlist["vertices_resources"],
-                                       netlist["nets"],
-                                       machine,
-                                       algorithm)))
-
+        try:
+            print(json.dumps(place_to_json(netlist["vertices_resources"],
+                                           netlist["nets"],
+                                           machine,
+                                           algorithm)))
+        except InsufficientResourceError:
+            # Did not fit. Fail quietly.
+            sys.exit(1)
 

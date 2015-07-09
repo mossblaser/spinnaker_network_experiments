@@ -32,6 +32,10 @@ Synthetic netlists can also be generated using:
 
 See `python scripts/generate_synthetic_benchmark.py --help` for more details.
 
+A standard set of synthetic netlists can be generated using:
+
+	$ ./scripts/generate_standard_netlists.sh
+
 Generate a machine description file for any available machines which are to be
 used:
 

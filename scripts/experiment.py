@@ -50,8 +50,6 @@ def run_experiment(netlist_name, vertices_resources, nets,
     e.duration = 0.1
     e.cooldown = 0.01
     
-    e.router_timeout = 16
-    
     e.record_sent = True
     e.record_blocked = True
     e.record_received = True
@@ -60,19 +58,23 @@ def run_experiment(netlist_name, vertices_resources, nets,
     e.record_external_multicast = True
     e.record_dropped_multicast = True
     
-    for step in range(NUM_STEPS):
-        with e.new_group() as group:
-            # Probability per unit net weight
-            probability = ((step + 1) / float(NUM_STEPS)) / max_weight
-            for net in nets:
-                net.probability = probability * net.weight
-            
-            group.add_label("netlist", netlist_name)
-            group.add_label("machine", machine_name)
-            group.add_label("placer", placement_algorithm)
-            group.add_label("placement_duration", placement_duration)
-            group.add_label("injection_rate", probability / e.timestep)
-            group.add_label("duration", e.duration)
+    for reinject_packets in [False, True]:
+        for step in range(NUM_STEPS):
+            with e.new_group() as group:
+                e.reinject_packets = reinject_packets
+                
+                # Probability per unit net weight
+                probability = ((step + 1) / float(NUM_STEPS)) / max_weight
+                for net in nets:
+                    net.probability = probability * net.weight
+                
+                group.add_label("netlist", netlist_name)
+                group.add_label("reinject_packets", e.reinject_packets)
+                group.add_label("machine", machine_name)
+                group.add_label("placer", placement_algorithm)
+                group.add_label("placement_duration", placement_duration)
+                group.add_label("injection_rate", probability / e.timestep)
+                group.add_label("duration", e.duration)
     
     results = e.run(ignore_deadline_errors=True)
     return (to_csv(results.totals()) + "\n",

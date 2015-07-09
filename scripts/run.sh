@@ -45,14 +45,17 @@ parallel --ungroup -a <(
                 netlist_file="$NETLISTS_DIR/$netlist.json"
                 placement_file="$PLACEMENTS_DIR/$placer/$machine/$netlist.json"
                 machine_file="$MACHINES_DIR/$machine.json"
+                placement_script="$SCRIPTS_DIR/place.py"
                 if [ ! -f "$placement_file" -o \
+                     "$placement_script" -nt "$placement_file" -o \
                      "$netlist_file" -nt "$placement_file" -o \
                      "$machine_file" -nt "$placement_file" ]; then
                     echo "echo \"  '$netlist' on '$machine' with '$placer'\"; \
                           mkdir -p \"$(dirname "$placement_file")\"; \
                           python \"$SCRIPTS_DIR/place.py\" \
                                  \"$netlist_file\" \"$machine_file\" \
-                                 \"$placer\" > \"$placement_file\";"
+                                 \"$placer\" > \"$placement_file\" \
+                          || rm \"$placement_file\""
                 fi
             done
         done
@@ -70,6 +73,11 @@ for netlist in "${NETLISTS[@]}"; do
             experiment_script="$SCRIPTS_DIR/experiment.py"
             totals_file="$RESULTS_DIR/totals/$placer/$machine/$netlist.csv"
             router_counters_file="$RESULTS_DIR/router_counters/$placer/$machine/$netlist.csv"
+            # Skip experiments without any placement available
+            if [ ! -f "$placement_file" ]; then
+                continue
+            fi
+            
             if [ ! -f "$totals_file" -o \
                  ! -f "$router_counters_file" -o \
                  "$experiment_script" -nt "$totals_file" -o \
