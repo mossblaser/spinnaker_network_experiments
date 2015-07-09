@@ -50,6 +50,8 @@ def run_experiment(netlist_name, vertices_resources, nets,
     e.duration = 0.1
     e.cooldown = 0.01
     
+    e.router_timeout = 16
+    
     e.record_sent = True
     e.record_blocked = True
     e.record_received = True

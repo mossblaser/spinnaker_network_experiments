@@ -67,10 +67,13 @@ for netlist in "${NETLISTS[@]}"; do
             netlist_file="$NETLISTS_DIR/$netlist.json"
             placement_file="$PLACEMENTS_DIR/$placer/$machine/$netlist.json"
             machine_file="$MACHINES_DIR/$machine.json"
+            experiment_script="$SCRIPTS_DIR/experiment.py"
             totals_file="$RESULTS_DIR/totals/$placer/$machine/$netlist.csv"
             router_counters_file="$RESULTS_DIR/router_counters/$placer/$machine/$netlist.csv"
             if [ ! -f "$totals_file" -o \
                  ! -f "$router_counters_file" -o \
+                 "$experiment_script" -nt "$totals_file" -o \
+                 "$experiment_script" -nt "$router_counters_file" -o \
                  "$placement_file" -nt "$totals_file" -o \
                  "$placement_file" -nt "$router_counters_file" ]; then
                 echo "  '$netlist' on '$machine' with '$placer'";

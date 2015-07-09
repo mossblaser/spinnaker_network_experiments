@@ -22,6 +22,16 @@ Install dependencies of Python utility scripts:
 
 	$ pip install -r requirements.txt
 
+Netlists dumped by `nengo_spinnaker` and similar can be converted using:
+
+	$ python scripts/netlist_to_json.py netlist > netlists/my_netlist_name.json
+
+Synthetic netlists can also be generated using:
+
+	$ python scripts/generate_synthetic_benchmark.py ... > netlists/my_netlist_name.json
+
+See `python scripts/generate_synthetic_benchmark.py --help` for more details.
+
 Generate a machine description file for any available machines which are to be
 used:
 
