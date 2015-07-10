@@ -26,8 +26,8 @@ All results files will contain the following label columns:
   or not.
 * `placer` the name of the placement algorithm
 * `placement_duration` the name of the placement algorithm
-* `injection_rate` the number of packets-per-second-per-unit-weight for each
-  net in the given sample.
+* `injection_rate` the number of packets-per-second for the net with the
+  greatest net.
 * `duration` the number of seconds the group ran for
 Experiment execution
 --------------------

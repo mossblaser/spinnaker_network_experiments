@@ -44,18 +44,25 @@ parallel --ungroup -a <(
             for machine in "${MACHINES[@]}"; do
                 netlist_file="$NETLISTS_DIR/$netlist.json"
                 placement_file="$PLACEMENTS_DIR/$placer/$machine/$netlist.json"
+                skip_placement_file="$PLACEMENTS_DIR/$placer/$machine/$netlist.skip"
                 machine_file="$MACHINES_DIR/$machine.json"
                 placement_script="$SCRIPTS_DIR/place.py"
-                if [ ! -f "$placement_file" -o \
-                     "$placement_script" -nt "$placement_file" -o \
-                     "$netlist_file" -nt "$placement_file" -o \
-                     "$machine_file" -nt "$placement_file" ]; then
+                if [ \( ! -f "$placement_file" -o \
+                        "$placement_script" -nt "$placement_file" -o \
+                        "$netlist_file" -nt "$placement_file" -o \
+                        "$machine_file" -nt "$placement_file" \) -a \
+                     \( ! -f "$skip_placement_file" -o \
+                        "$placement_script" -nt "$skip_placement_file" -o \
+                        "$netlist_file" -nt "$skip_placement_file" -o \
+                        "$machine_file" -nt "$skip_placement_file" \) ]; then
                     echo "echo \"  '$netlist' on '$machine' with '$placer'\"; \
+                          [ -f \"$skip_placement_file\" ] && rm \"$skip_placement_file\"; \
                           mkdir -p \"$(dirname "$placement_file")\"; \
                           python \"$SCRIPTS_DIR/place.py\" \
                                  \"$netlist_file\" \"$machine_file\" \
                                  \"$placer\" > \"$placement_file\" \
-                          || rm \"$placement_file\""
+                          || ( rm \"$placement_file\"; \
+                               touch \"$skip_placement_file\" )"
                 fi
             done
         done

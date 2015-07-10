@@ -73,7 +73,7 @@ def run_experiment(netlist_name, vertices_resources, nets,
                 group.add_label("machine", machine_name)
                 group.add_label("placer", placement_algorithm)
                 group.add_label("placement_duration", placement_duration)
-                group.add_label("injection_rate", probability / e.timestep)
+                group.add_label("injection_rate", (probability * max_weight) / e.timestep)
                 group.add_label("duration", e.duration)
     
     results = e.run(ignore_deadline_errors=True)

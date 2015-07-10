@@ -30,7 +30,7 @@ def netlist_to_json(netlist):
 
     nets = [{"source": vertices[n.source],
              "sinks": [vertices[s] for s in n.sinks],
-             "weight": n.weight}
+             "weight": float(n.weight)}
             for n in netlist["nets"]]
 
     return {"vertices_resources": vertices_resources,
@@ -59,7 +59,7 @@ def json_to_netlist(json_netlist):
 
 if __name__=="__main__":
     import sys
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 2:
         print("Expected one argument: netlist.")
         sys.exit(1)
     else:
