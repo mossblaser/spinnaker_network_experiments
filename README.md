@@ -43,7 +43,7 @@ used:
 
 Place and run any new/modified netlists and collect the results:
 
-	$ # Run on all machines in ./machines/
+	$ # Run placement and static analysis only
 	$ ./scripts/run.sh
-	$ # OR: Run on just a specified subset of machines
+	$ # OR: As above but also run experiments on the specified set of machines
 	$ ./scripts/run.sh my_machine_name my_other_machine_name
