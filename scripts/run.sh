@@ -15,7 +15,7 @@ PLACEMENTS_DIR="$BASE_DIR/placements"
 RESULTS_DIR="$BASE_DIR/results"
 
 # The set of Rig placement algorithms available
-PLACERS=(hilbert sa)
+PLACERS=(hilbert sa rand)
 
 # The set of netlists which exist
 NETLISTS=($(for f in "$NETLISTS_DIR/"*.json; do basename "${f%.json}"; done))

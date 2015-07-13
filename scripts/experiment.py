@@ -4,6 +4,8 @@
 
 import sys
 
+from math import ceil
+
 from collections import defaultdict
 
 from os.path import splitext, basename
@@ -20,7 +22,8 @@ from machine_to_json import json_to_machine
 
 
 # The number of graduations in injection rate
-NUM_STEPS = 50
+NUM_STEPS = 20
+MAX_PACKETS_PER_TIMESTEP = 50
 
 def run_experiment(netlist_name, vertices_resources, nets,
                    placement_algorithm, placement_duration, placements,
@@ -44,7 +47,9 @@ def run_experiment(netlist_name, vertices_resources, nets,
     
     max_weight = max(n.weight for n in nets)
     
-    e.timestep = 1e-5
+    e.timestep = 1e-3
+    
+    e.num_retries = 0xFFFFFFFF
     
     e.warmup = 0.01
     e.duration = 0.1
@@ -52,19 +57,32 @@ def run_experiment(netlist_name, vertices_resources, nets,
     
     e.record_sent = True
     e.record_blocked = True
+    e.record_retried = True
     e.record_received = True
     
     e.record_local_multicast = True
     e.record_external_multicast = True
     e.record_dropped_multicast = True
+    e.record_reinjected = True
     
     for reinject_packets in [False, True]:
         for step in range(NUM_STEPS):
             with e.new_group() as group:
                 e.reinject_packets = reinject_packets
                 
-                # Probability per unit net weight
-                probability = ((step + 1) / float(NUM_STEPS)) / max_weight
+                # Work out the current packets-per-timestep
+                ppts = (((step + 1) / float(NUM_STEPS)) *
+                        MAX_PACKETS_PER_TIMESTEP)
+                
+                # Send slightly more than this if requried, compensating for
+                # the extra packets by scaling the probability.
+                e.packets_per_timestep = int(ceil(ppts))
+                scale = ppts / ceil(ppts)
+                
+                # Scale the net probabilities such that the most highly
+                # weighted net is sending the specified number of packets per
+                # timestep.
+                probability = scale / float(max_weight)
                 for net in nets:
                     net.probability = probability * net.weight
                 
@@ -73,7 +91,7 @@ def run_experiment(netlist_name, vertices_resources, nets,
                 group.add_label("machine", machine_name)
                 group.add_label("placer", placement_algorithm)
                 group.add_label("placement_duration", placement_duration)
-                group.add_label("injection_rate", (probability * max_weight) / e.timestep)
+                group.add_label("injection_rate", ppts / e.timestep)
                 group.add_label("duration", e.duration)
     
     results = e.run(ignore_deadline_errors=True)
