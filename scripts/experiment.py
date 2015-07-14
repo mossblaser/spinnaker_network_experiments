@@ -22,8 +22,8 @@ from machine_to_json import json_to_machine
 
 
 # The number of graduations in injection rate
-NUM_STEPS = 20
-MAX_PACKETS_PER_TIMESTEP = 50
+NUM_STEPS = 30
+MAX_PACKETS_PER_TIMESTEP = 100
 
 def run_experiment(netlist_name, vertices_resources, nets,
                    placement_algorithm, placement_duration, placements,
