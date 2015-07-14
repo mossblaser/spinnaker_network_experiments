@@ -13,6 +13,7 @@ from six import iteritems
 from rig.machine import Cores
 
 from rig.place_and_route import allocate, route
+from rig.place_and_route.utils import build_routing_tables
 
 from rig.place_and_route.constraints import ReserveResourceConstraint
 
@@ -36,6 +37,10 @@ def measure_nets(netlist_name, vertices_resources, nets,
     routes = route(vertices_resources, nets, machine, constraints, placements,
                    allocations)
     
+    routing_tables = build_routing_tables(routes,
+                                          {n: (k, -1)
+                                           for k, n in enumerate(nets)})
+    
     # Standard columns
     std_header = "netlist,machine,placer,placement_duration"
     std_cols = "{},{},{},{}".format(netlist_name,
@@ -55,7 +60,7 @@ def measure_nets(netlist_name, vertices_resources, nets,
                                               total_hops)
     
     # Create per-chip summary
-    per_chip_csv = "{},x,y,num_nets,total_weight\n".format(std_header)
+    per_chip_csv = "{},x,y,routing_table_entries,num_nets,total_weight\n".format(std_header)
     chip_num_nets = defaultdict(lambda: 0)
     chip_total_weight = defaultdict(lambda: 0.0)
     for net, routing_tree in iteritems(routes):
@@ -64,8 +69,10 @@ def measure_nets(netlist_name, vertices_resources, nets,
                 chip_num_nets[node.chip] += 1
                 chip_total_weight[node.chip] += net.weight
     for x, y in machine:
-        per_chip_csv += "{},{},{},{},{}\n".format(std_cols,
+        routing_table_entries = len(routing_tables[(x, y)])
+        per_chip_csv += "{},{},{},{},{},{}\n".format(std_cols,
                                                x, y,
+                                               routing_table_entries,
                                                chip_num_nets[(x, y)],
                                                chip_total_weight[(x, y)])
     
