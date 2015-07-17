@@ -9,7 +9,7 @@ NETLISTS_DIR="$BASE_DIR/netlists"
 
 
 # The various numbers of chips to include in each size of the benchmarks
-NUM_CHIPS=(4 48 144)
+NUM_CHIPS=(4 48 144 $((47*24)))
 
 for num in "${NUM_CHIPS[@]}"; do
     python "$SCRIPTS_DIR/generate_synthetic_benchmark.py" \
