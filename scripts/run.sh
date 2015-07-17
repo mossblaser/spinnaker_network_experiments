@@ -44,6 +44,7 @@ parallel --ungroup -a <(
                 skip_placement_file="$PLACEMENTS_DIR/$placer/$machine/$netlist.skip"
                 machine_file="$MACHINES_DIR/$machine.json"
                 placement_script="$SCRIPTS_DIR/place.py"
+                temp_file="$(mktemp)"
                 if [ \( ! -f "$placement_file" -o \
                         "$placement_script" -nt "$placement_file" -o \
                         "$netlist_file" -nt "$placement_file" -o \
@@ -57,9 +58,10 @@ parallel --ungroup -a <(
                           mkdir -p \"$(dirname "$placement_file")\"; \
                           python \"$SCRIPTS_DIR/place.py\" \
                                  \"$netlist_file\" \"$machine_file\" \
-                                 \"$placer\" > \"$placement_file\" \
-                          || ( rm \"$placement_file\"; \
-                               touch \"$skip_placement_file\" )"
+                                 \"$placer\" > \"$temp_file\" \
+                          && mv \"$temp_file\" \"$placement_file\" \
+                          || ( [ \"$?\" = \"10\" ] && touch \"$skip_placement_file\"; \
+                               rm \"$temp_file\"; )"
                 fi
             done
         done

@@ -79,5 +79,5 @@ if __name__=="__main__":
                                            algorithm)))
         except InsufficientResourceError:
             # Did not fit. Fail quietly.
-            sys.exit(1)
+            sys.exit(10)
 
