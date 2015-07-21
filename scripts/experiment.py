@@ -23,13 +23,17 @@ from machine_to_json import json_to_machine
 
 # The number of graduations in injection rate
 NUM_STEPS = 30
-MAX_PACKETS_PER_TIMESTEP = 100
+MAX_PACKETS_PER_TIMESTEP = 60
 
 def run_experiment(netlist_name, vertices_resources, nets,
                    placement_algorithm, placement_duration, placements,
                    machine_name, machine, hostname):
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    
     e = Experiment(hostname)
-    assert e.machine == machine
+    assert machine.issubset(e.machine)
+    e.machine = machine
     
     vertices = defaultdict(e.new_vertex)
     
@@ -54,6 +58,7 @@ def run_experiment(netlist_name, vertices_resources, nets,
     e.warmup = 0.01
     e.duration = 0.1
     e.cooldown = 0.01
+    e.flush_time = 0.5
     
     e.record_sent = True
     e.record_blocked = True
